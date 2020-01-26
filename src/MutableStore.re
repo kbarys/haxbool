@@ -18,7 +18,7 @@ module State = {
     scene: option(Webapi.Dom.Element.t),
   };
   let initial = {
-    let size = 1000.0;
+    let size = 900.0;
     let width = size;
     let height = size /. 2.0;
     {
@@ -27,8 +27,8 @@ module State = {
         size,
         width,
         height,
-        maxPlayerSpeed: 0.003 *. size,
-        playerAcceleration: 0.0001 *. size,
+        maxPlayerSpeed: 0.0012 *. size,
+        playerAcceleration: 0.00005 *. size,
         playerBreak: 0.00001 *. size,
       },
       player: {

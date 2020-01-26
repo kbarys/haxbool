@@ -1,14 +1,26 @@
 let update = () => {
+  module Canvas = Webapi.Canvas.Canvas2d;
   let (state, _) = MutableStore.use();
   state^.scene
-  ->Belt.Option.flatMap(_, Webapi.Dom.Element.querySelector(".player"))
-  ->Belt.Option.forEach(
-      _,
-      player => {
-        Webapi.Dom.Element.setAttribute("cx", Js.Float.toString(state^.player.position->fst), player);
-        Webapi.Dom.Element.setAttribute("cy", Js.Float.toString(state^.player.position->snd), player);
-      },
-    );
+  ->Belt.Option.map(_, Webapi.Canvas.CanvasElement.getContext2d)
+  ->Belt.Option.forEach(context => {
+      Canvas.setFillStyle(context, Canvas.String, "#6F965E");
+      Canvas.fillRect(~x=0.0, ~y=0.0, ~w=state^.options.width, ~h=state^.options.height, context);
+      Canvas.beginPath(context);
+      Canvas.setFillStyle(context, Canvas.String, "#E56E56");
+      Canvas.arc(
+        ~x=state^.player.position->fst,
+        ~y=state^.player.position->snd,
+        ~r=15.0,
+        ~startAngle=0.0,
+        ~endAngle=Js.Math._PI *. 2.0,
+        ~anticw=false,
+        context,
+      );
+      Webapi.Canvas.Canvas2d.lineWidth(context, 3.0);
+      Canvas.stroke(context);
+      Canvas.fill(context);
+    });
 };
 
 [@react.component]
@@ -82,21 +94,20 @@ let make = () => {
     None;
   });
   let onBlur = _ => dispatch(MutableStore.FocusLost);
-  <svg
+  <canvas
     className="scene"
     width={Js.Float.toString(state^.options.width)}
     height={Js.Float.toString(state^.options.height)}
     tabIndex=0
-    onBlur>
-    <rect width="100%" height="100%" fill="#6F965E" />
-    <circle
-      className="player"
-      cx={Js.Float.toString(state^.player.position->fst)}
-      cy={Js.Float.toString(state^.player.position->snd)}
-      r="2%"
-      strokeWidth="0.25%"
-      stroke="black"
-      fill="#E56E56"
-    />
-  </svg>;
+    // <circle
+    //   className="player"
+    //   cx={Js.Float.toString(state^.player.position->fst)}
+    //   cy={Js.Float.toString(state^.player.position->snd)}
+    //   r="2%"
+    //   strokeWidth="0.25%"
+    //   stroke="black"
+    //   fill="#E56E56"
+    onBlur
+    // />
+  />;
 };
