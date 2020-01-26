@@ -5,12 +5,14 @@ module State = {
 
 type action =
   | KeyPressed(Key.t)
-  | KeyReleased(Key.t);
+  | KeyReleased(Key.t)
+  | FocusLost;
 
 let reducer = (state: State.t, action): State.t => {
   switch (action) {
   | KeyPressed(key) => {keys: Belt.Map.update(state.keys, key, _ => Some(Pressed))}
   | KeyReleased(key) => {keys: Belt.Map.update(state.keys, key, _ => Some(Released))}
+  | FocusLost => {keys: Belt.Map.map(state.keys, _ => Key.Released)}
   };
 };
 
