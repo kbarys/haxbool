@@ -2,7 +2,8 @@ type keyType =
   | ArrowUp
   | ArrowDown
   | ArrowLeft
-  | ArrowRight;
+  | ArrowRight
+  | Space;
 type t = keyType;
 type state =
   | Pressed
@@ -12,13 +13,15 @@ let toString =
   | ArrowUp => "ArrowUp"
   | ArrowDown => "ArrowDown"
   | ArrowLeft => "ArrowLeft"
-  | ArrowRight => "ArrowRight";
+  | ArrowRight => "ArrowRight"
+  | Space => " ";
 let fromString =
   fun
   | "ArrowUp" => Some(ArrowUp)
   | "ArrowDown" => Some(ArrowDown)
   | "ArrowLeft" => Some(ArrowLeft)
   | "ArrowRight" => Some(ArrowRight)
+  | " " => Some(Space)
   | _ => None;
 module Comparator =
   Belt.Id.MakeComparable({

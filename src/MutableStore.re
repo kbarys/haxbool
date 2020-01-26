@@ -6,10 +6,12 @@ module State = {
     maxPlayerSpeed: float,
     playerAcceleration: float,
     playerBreak: float,
+    playerRadius: float,
   };
   type player = {
     speed: (float, float),
     position: (float, float),
+    hit: bool,
   };
   type t = {
     keys: Belt.Map.t(Key.t, Key.state, Key.Comparator.identity),
@@ -30,10 +32,12 @@ module State = {
         maxPlayerSpeed: 0.0012 *. size,
         playerAcceleration: 0.00005 *. size,
         playerBreak: 0.00001 *. size,
+        playerRadius: 0.02 *. size,
       },
       player: {
         speed: (0.0, 0.0),
         position: (width *. 0.5, height *. 0.5),
+        hit: false,
       },
       scene: None,
     };
@@ -47,6 +51,7 @@ type action =
   | FocusLost
   | PlayerSpeedChanged((float, float))
   | PlayerPositionChanged((float, float))
+  | PlayerHitChanged(bool)
   | SceneLoaded(Webapi.Dom.Element.t);
 
 let reducer = (state: State.t, action): State.t => {
@@ -66,6 +71,13 @@ let reducer = (state: State.t, action): State.t => {
       player: {
         ...state.player,
         position,
+      },
+    }
+  | PlayerHitChanged(hit) => {
+      ...state,
+      player: {
+        ...state.player,
+        hit,
       },
     }
   | SceneLoaded(scene) => {...state, scene: Some(scene)}
