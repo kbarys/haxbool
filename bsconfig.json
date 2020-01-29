@@ -1,8 +1,8 @@
 {
-  "name": "react-hooks-template",
+  "name": "haxbool",
   "reason": {
     "react-jsx": 3
-  }, 
+  },
   "sources": {
     "dir": "src",
     "subdirs": true

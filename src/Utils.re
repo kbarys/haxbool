@@ -1,1 +1,0 @@
-let namedStyle = (styleClassName: string, name: string) => name ++ " " ++ styleClassName;
