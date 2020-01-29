@@ -5,3 +5,5 @@ let maxPlayerSpeed = 0.00015 *. size;
 let playerAcceleration = 0.0000009 *. size;
 let playerBreak = 0.0000002 *. size;
 let playerRadius = 0.02 *. size;
+let ballRadius = 0.01 *. size;
+let sceneColor = "#6F965E";

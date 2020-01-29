@@ -3,6 +3,7 @@ module Performance = {
 };
 
 let updatePlayerActions = (state: Game.state): Game.state => {
+  ...state,
   Game.players:
     Belt.Map.String.update(
       state.players,
@@ -19,7 +20,7 @@ let rec loop =
         (currentTimestamp, ~previousTimestamp, canvasElement, previousState) => {
   let progress = currentTimestamp -. previousTimestamp;
   let state = Game.nextState(previousState, progress)->updatePlayerActions;
-  Scene.render(canvasElement, state);
+  Scene.render(canvasElement, previousState, state);
   let _ =
     requestAnimationFrame(
       loop(_, ~previousTimestamp=currentTimestamp, canvasElement, state),

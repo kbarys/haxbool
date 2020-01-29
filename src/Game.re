@@ -15,12 +15,20 @@ let noActions = {
 };
 
 type player = {
-  position: Vector.t,
-  speed: Vector.t,
   actions,
+  circle: Circle.t,
+  speed: Vector.t,
 };
 
-type state = {players: Belt.Map.String.t(player)};
+type ball = {
+  circle: Circle.t,
+  speed: Vector.t,
+};
+
+type state = {
+  players: Belt.Map.String.t(player),
+  ball,
+};
 
 let initState = {
   players:
@@ -28,15 +36,25 @@ let initState = {
       (
         "1",
         {
-          position: (Options.width /. 2.0, Options.height /. 2.0),
+          circle: {
+            position: (Options.width /. 4.0, Options.height /. 2.0),
+            radius: Options.playerRadius,
+          },
           speed: (0.0, 0.0),
           actions: noActions,
         },
       ),
     |]),
+  ball: {
+    circle: {
+      position: (Options.width /. 2.0, Options.height /. 2.0),
+      radius: Options.ballRadius,
+    },
+    speed: (0.0, 0.0),
+  },
 };
 
-let nextPlayerSpeed = (progress, player) => {
+let nextPlayerSpeed = (progress, player: player) => {
   let (hSpeed, vSpeed) = player.speed;
   let accelartion = Options.playerAcceleration *. progress;
   let break = Options.playerBreak *. progress;
@@ -67,9 +85,13 @@ let nextPosition = (progress, position, speed) => {
     ));
 };
 
-let nextPlayerState = (progress, previous) => {
+let nextPlayerState = (progress, previous: player) => {
   ...previous,
-  position: nextPosition(progress, previous.position, previous.speed),
+  circle:
+    Circle.updatePosition(
+      previous.circle,
+      nextPosition(progress, previous.circle.position, previous.speed),
+    ),
   speed: nextPlayerSpeed(progress, previous),
 };
 
@@ -77,5 +99,6 @@ let nextState = (previousState: state, progress: float) => {
   {
     players:
       previousState.players->Belt.Map.String.map(nextPlayerState(progress)),
+    ball: previousState.ball,
   };
 };
