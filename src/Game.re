@@ -16,8 +16,7 @@ let noActions = {
 
 type player = {
   actions,
-  circle: Circle.t,
-  speed: Vector.t,
+  physicalObject: PhysicalObject.t,
 };
 
 type ball = {
@@ -36,11 +35,16 @@ let initState = {
       (
         "1",
         {
-          circle: {
-            position: (Options.width /. 4.0, Options.height /. 2.0),
-            radius: Options.playerRadius,
+          physicalObject: {
+            circle: {
+              position: (0.25, 0.5),
+              radius: Options.playerRadius,
+            },
+            mass: Options.playerMass,
+            force: Vector.zero,
+            acceleration: Vector.zero,
+            velocity: Vector.zero,
           },
-          speed: (0.0, 0.0),
           actions: noActions,
         },
       ),
@@ -54,51 +58,27 @@ let initState = {
   },
 };
 
-let nextPlayerSpeed = (progress, player: player) => {
-  let (hSpeed, vSpeed) = player.speed;
-  let accelartion = Options.playerAcceleration *. progress;
-  let break = Options.playerBreak *. progress;
-  let nextSpeed = (previous, moveOpposite, moveForward) =>
-    switch (moveOpposite, moveForward) {
-    | (false, false)
-    | (true, true) => Speed.decrease(previous, ~by=break)
-    | (true, false) when previous > 0.0 =>
-      Speed.increase(previous, ~by=(-1.2) *. accelartion)
-    | (true, false) => Speed.increase(previous, ~by=-. accelartion)
-    | (false, true) when previous < 0.0 =>
-      Speed.increase(previous, ~by=1.2 *. accelartion)
-    | (false, true) => Speed.increase(previous, ~by=accelartion)
+let nextState = (previousState: state, time: float) => {
+  let nextPlayerState = (previous: player) => {
+    let {actions} = previous;
+    let force =
+      (
+        (actions.moveLeft ? (-1.0) : 0.0) +. (actions.moveRight ? 1.0 : 0.0),
+        (actions.moveUp ? (-1.0) : 0.0) +. (actions.moveDown ? 1.0 : 0.0),
+      )
+      ->Vector.multiplyByScalar(20.0);
+    {
+      ...previous,
+      physicalObject:
+        previous.physicalObject
+        ->PhysicalObject.setForce(force)
+        ->PhysicalObject.updatePosition(time)
+        ->PhysicalObject.updateVelocity(time)
+        ->PhysicalObject.updateAcceleration,
     };
-  (
-    nextSpeed(hSpeed, player.actions.moveLeft, player.actions.moveRight),
-    nextSpeed(vSpeed, player.actions.moveUp, player.actions.moveDown),
-  );
-};
-
-let nextPosition = (progress, position, speed) => {
-  position
-  ->Vector.add(Vector.multiply(speed, ~by=progress))
-  ->Vector.max((Options.playerRadius, Options.playerRadius))
-  ->Vector.min((
-      Options.width -. Options.playerRadius,
-      Options.height -. Options.playerRadius,
-    ));
-};
-
-let nextPlayerState = (progress, previous: player) => {
-  ...previous,
-  circle:
-    Circle.updatePosition(
-      previous.circle,
-      nextPosition(progress, previous.circle.position, previous.speed),
-    ),
-  speed: nextPlayerSpeed(progress, previous),
-};
-
-let nextState = (previousState: state, progress: float) => {
+  };
   {
-    players:
-      previousState.players->Belt.Map.String.map(nextPlayerState(progress)),
+    players: previousState.players->Belt.Map.String.map(nextPlayerState),
     ball: previousState.ball,
   };
 };

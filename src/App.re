@@ -6,17 +6,32 @@ let make = () => {
   });
   React.useLayoutEffect(() => {
     switch (Webapi.Dom.Document.querySelector(".scene", Webapi.Dom.document)) {
-    | Some(scene) =>
-      Scene.init(scene);
-      Loop.loop(0.0, ~previousTimestamp=0.0, scene, Game.initState);
+    | Some(scene) => Loop.start(scene)
     | None => Js.log("Canvas element (.scene) was not found")
     };
     None;
   });
-  <canvas
-    className="scene"
-    width={Js.Float.toString(Options.width)}
-    height={Js.Float.toString(Options.height)}
-    tabIndex=0
-  />;
+  <>
+    <canvas
+      className="scene"
+      width={Js.Float.toString(Options.width)}
+      height={Js.Float.toString(Options.height)}
+      tabIndex=0
+    />
+    <div className="debug">
+      <div> {React.string("Force: ")} <span className="force-value" /> </div>
+      <div>
+        {React.string("Acceleration: ")}
+        <span className="acceleration-value" />
+      </div>
+      <div>
+        {React.string("Friction: ")}
+        <span className="friction-value" />
+      </div>
+      <div>
+        {React.string("Velocity: ")}
+        <span className="velocity-value" />
+      </div>
+    </div>
+  </>;
 };

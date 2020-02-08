@@ -3,7 +3,7 @@ type t = {
   radius: float,
 };
 
-let updatePosition = (circle, newPosition) => {
+let setPosition = (circle, newPosition) => {
   ...circle,
   position: newPosition,
 };

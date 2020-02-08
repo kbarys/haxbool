@@ -28,9 +28,9 @@ let renderCircle =
       [
         beginPath,
         arc(
-          ~x=circle.position->fst,
-          ~y=circle.position->snd,
-          ~r=circle.radius,
+          ~x=circle.position->fst *. Options.width,
+          ~y=circle.position->snd *. Options.height,
+          ~r=circle.radius *. Options.width,
           ~startAngle=0.0,
           ~endAngle=Js.Math._PI *. 2.0,
           ~anticw=false,
@@ -62,7 +62,7 @@ let clearScene = (canvasElement, circles) =>
 let renderPlayer = (canvasElement, player: Game.player) => {
   renderCircle(
     canvasElement,
-    player.circle,
+    player.physicalObject.circle,
     ~strokeColor=player.actions.hit ? "#fff" : "#000",
     ~fillColor="#E56E56",
     (),
@@ -78,7 +78,7 @@ let render = (canvasElement, previousState: Game.state, state: Game.state) => {
     ...previousState.players
        ->Belt.Map.String.valuesToArray
        ->Belt.List.fromArray
-       ->Belt.List.map(player => player.circle),
+       ->Belt.List.map(player => player.physicalObject.circle),
   ]
   |> clearScene(canvasElement);
   state.players
