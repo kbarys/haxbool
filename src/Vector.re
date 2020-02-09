@@ -34,3 +34,20 @@ let toStringFixed = ((x, y), ~digits) => {
 };
 
 let lift = (x: float) => (x, x);
+
+let distance = ((x1, y1), (x2, y2)) =>
+  Js.Math.sqrt(
+    Js.Math.pow_float(~base=x1 -. x2, ~exp=2.0)
+    +. Js.Math.pow_float(~base=y1 -. y2, ~exp=2.0),
+  );
+
+let straightEquationCoefficients = ((x1, y1), (x2, y2)) =>
+  if (x1 == x2) {
+    (1.0, 0.0, -. x1);
+  } else if (y1 == y2) {
+    (0.0, 1.0, -. y1);
+  } else {
+    let a = (y1 -. y2) /. (x1 -. x2);
+    let c = y1 -. a *. x1;
+    (-.a, 1.0, -.c);
+  };
