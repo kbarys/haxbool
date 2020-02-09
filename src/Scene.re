@@ -19,7 +19,7 @@ let renderCircle =
       circle: Circle.t,
       ~fillColor="#fff",
       ~strokeColor="#000",
-      ~strokeWidth=4.0,
+      ~strokeWidth=0.01,
       (),
     ) => {
   Webapi.Canvas.Canvas2d.(
@@ -30,14 +30,17 @@ let renderCircle =
         arc(
           ~x=circle.position->fst /. Options.virtualWidth *. Options.width,
           ~y=circle.position->snd /. Options.virtualHeight *. Options.height,
-          ~r=circle.radius /. Options.virtualWidth *. Options.width, // TODO: it should rendered as a elipsis
+          ~r=
+            (circle.radius -. strokeWidth /. 2.0)
+            /. Options.virtualWidth
+            *. Options.width, // TODO: it should be rendered as an elipsis
           ~startAngle=0.0,
           ~endAngle=Js.Math._PI *. 2.0,
           ~anticw=false,
         ),
         setFillStyle(_, String, fillColor),
         setStrokeStyle(_, String, strokeColor),
-        lineWidth(_, strokeWidth),
+        lineWidth(_, strokeWidth /. Options.virtualWidth *. Options.width),
         stroke,
         fill,
       ],
@@ -45,13 +48,13 @@ let renderCircle =
   );
 };
 
-let clearCircle = (canvasElement, circle) => {
+let clearCircle = (canvasElement, circle: Circle.t) => {
   renderCircle(
     canvasElement,
-    circle,
+    {...circle, radius: circle.radius *. 1.5},
     ~fillColor=Options.sceneColor,
     ~strokeColor=Options.sceneColor,
-    ~strokeWidth=6.0,
+    ~strokeWidth=0.0,
     (),
   );
 };
@@ -65,12 +68,18 @@ let renderPlayer = (canvasElement, player: Game.player) => {
     player.physicalObject.circle,
     ~strokeColor=player.actions.hit ? "#fff" : "#000",
     ~fillColor="#E56E56",
+    ~strokeWidth=Options.playerStrokeSize,
     (),
   );
 };
 
 let renderBall = (canvasElement, ball: Game.ball) =>
-  renderCircle(canvasElement, ball.physicalObject.circle, ());
+  renderCircle(
+    canvasElement,
+    ball.physicalObject.circle,
+    ~strokeWidth=Options.ballStrokeSize,
+    (),
+  );
 
 let render = (canvasElement, previousState: Game.state, state: Game.state) => {
   [
@@ -92,6 +101,7 @@ let render = (canvasElement, previousState: Game.state, state: Game.state) => {
         canvasElement,
         {position: collisionPoint, radius: 0.005},
         ~fillColor="red",
+        ~strokeWidth=0.0,
         (),
       )
     });
