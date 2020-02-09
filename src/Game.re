@@ -24,6 +24,7 @@ type ball = {physicalObject: PhysicalObject.t};
 type state = {
   players: Belt.Map.String.t(player),
   ball,
+  collisionPoint: option(Vector.t),
 };
 
 let initState = {
@@ -33,6 +34,7 @@ let initState = {
         "1",
         {
           physicalObject: {
+            id: "player_1",
             circle: {
               position: (0.25, 0.5),
               radius: Options.playerRadius,
@@ -48,6 +50,7 @@ let initState = {
     |]),
   ball: {
     physicalObject: {
+      id: "ball",
       circle: {
         position: (Options.virtualWidth /. 2.0, Options.virtualHeight /. 2.0),
         radius: Options.ballRadius,
@@ -58,6 +61,7 @@ let initState = {
       velocity: Vector.zero,
     },
   },
+  collisionPoint: None,
 };
 
 let nextState = (previousState: state, time: float) => {
@@ -79,8 +83,21 @@ let nextState = (previousState: state, time: float) => {
         ->PhysicalObject.updateAcceleration,
     };
   };
+  let collisions =
+    Collision.findCollisions([
+      previousState.ball.physicalObject,
+      ...Belt.Map.String.valuesToArray(previousState.players)
+         ->Belt.List.fromArray
+         ->Belt.List.map(x => x.physicalObject),
+    ]);
+  let collisionPoint =
+    switch (collisions) {
+    | [c] => Some(c.point)
+    | _ => None
+    };
   {
     players: previousState.players->Belt.Map.String.map(nextPlayerState),
     ball: previousState.ball,
+    collisionPoint,
   };
 };

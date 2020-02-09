@@ -1,4 +1,5 @@
 type t = {
+  id: string,
   circle: Circle.t,
   mass: float,
   force: Vector.t,
@@ -15,7 +16,6 @@ let friction = physicalObject => {
 };
 
 let keepPositionInBounds = position => {
-  Js.log(position->Vector.toString);
   position
   ->Vector.max((Options.playerRadius, Options.playerRadius))
   ->Vector.min((
