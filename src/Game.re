@@ -19,10 +19,7 @@ type player = {
   physicalObject: PhysicalObject.t,
 };
 
-type ball = {
-  circle: Circle.t,
-  speed: Vector.t,
-};
+type ball = {physicalObject: PhysicalObject.t};
 
 type state = {
   players: Belt.Map.String.t(player),
@@ -50,11 +47,16 @@ let initState = {
       ),
     |]),
   ball: {
-    circle: {
-      position: (Options.width /. 2.0, Options.height /. 2.0),
-      radius: Options.ballRadius,
+    physicalObject: {
+      circle: {
+        position: (Options.virtualWidth /. 2.0, Options.virtualHeight /. 2.0),
+        radius: Options.ballRadius,
+      },
+      mass: Options.ballMass,
+      force: Vector.zero,
+      acceleration: Vector.zero,
+      velocity: Vector.zero,
     },
-    speed: (0.0, 0.0),
   },
 };
 
@@ -66,7 +68,7 @@ let nextState = (previousState: state, time: float) => {
         (actions.moveLeft ? (-1.0) : 0.0) +. (actions.moveRight ? 1.0 : 0.0),
         (actions.moveUp ? (-1.0) : 0.0) +. (actions.moveDown ? 1.0 : 0.0),
       )
-      ->Vector.multiplyByScalar(20.0);
+      ->Vector.multiplyByScalar(Options.playerForce);
     {
       ...previous,
       physicalObject:

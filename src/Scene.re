@@ -28,9 +28,9 @@ let renderCircle =
       [
         beginPath,
         arc(
-          ~x=circle.position->fst *. Options.width,
-          ~y=circle.position->snd *. Options.height,
-          ~r=circle.radius *. Options.width,
+          ~x=circle.position->fst /. Options.virtualWidth *. Options.width,
+          ~y=circle.position->snd /. Options.virtualHeight *. Options.height,
+          ~r=circle.radius /. Options.virtualWidth *. Options.width, // TODO: it should rendered as a elipsis
           ~startAngle=0.0,
           ~endAngle=Js.Math._PI *. 2.0,
           ~anticw=false,
@@ -70,11 +70,11 @@ let renderPlayer = (canvasElement, player: Game.player) => {
 };
 
 let renderBall = (canvasElement, ball: Game.ball) =>
-  renderCircle(canvasElement, ball.circle, ());
+  renderCircle(canvasElement, ball.physicalObject.circle, ());
 
 let render = (canvasElement, previousState: Game.state, state: Game.state) => {
   [
-    previousState.ball.circle,
+    previousState.ball.physicalObject.circle,
     ...previousState.players
        ->Belt.Map.String.valuesToArray
        ->Belt.List.fromArray

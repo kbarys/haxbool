@@ -45,9 +45,7 @@ let updatePosition = (physicalObject, time) => {
   let position =
     Vector.add(
       physicalObject.circle.position,
-      physicalObject.velocity
-      ->Vector.multiplyByScalar(time)
-      ->Vector.multiply((1.0, Options.virtualWidth /. Options.virtualHeight)),
+      physicalObject.velocity->Vector.multiplyByScalar(time),
     );
   {
     ...physicalObject,
