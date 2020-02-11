@@ -85,24 +85,9 @@ let render = (canvasElement, previousState: Game.state, state: Game.state) => {
   [
     previousState.ball.physicalObject.circle,
     ...previousState.players
-       ->Belt.Map.String.valuesToArray
-       ->Belt.List.fromArray
        ->Belt.List.map(player => player.physicalObject.circle),
   ]
   |> clearScene(canvasElement);
-  state.players
-  ->Belt.Map.String.valuesToArray
-  ->Belt.List.fromArray
-  ->Belt.List.forEach(renderPlayer(canvasElement));
+  state.players->Belt.List.forEach(renderPlayer(canvasElement));
   state.ball |> renderBall(canvasElement);
-  state.collisionPoint
-  ->Belt.Option.forEach(collisionPoint => {
-      renderCircle(
-        canvasElement,
-        {position: collisionPoint, radius: 0.005},
-        ~fillColor="red",
-        ~strokeWidth=0.0,
-        (),
-      )
-    });
 };

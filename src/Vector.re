@@ -36,10 +36,7 @@ let toStringFixed = ((x, y), ~digits) => {
 let lift = (x: float) => (x, x);
 
 let distance = ((x1, y1), (x2, y2)) =>
-  Js.Math.sqrt(
-    Js.Math.pow_float(~base=x1 -. x2, ~exp=2.0)
-    +. Js.Math.pow_float(~base=y1 -. y2, ~exp=2.0),
-  );
+  Js.Math.sqrt(Math.quad(x1 -. x2) +. Math.quad(y1 -. y2));
 
 let straightEquationCoefficients = ((x1, y1), (x2, y2)) =>
   if (x1 == x2) {
@@ -49,5 +46,9 @@ let straightEquationCoefficients = ((x1, y1), (x2, y2)) =>
   } else {
     let a = (y1 -. y2) /. (x1 -. x2);
     let c = y1 -. a *. x1;
-    (-.a, 1.0, -.c);
+    (-. a, 1.0, -. c);
   };
+
+let length = ((x, y)) => Js.Math.sqrt(Math.quad(x) +. Math.quad(y));
+
+let dotProduct = ((x1, y1), (x2, y2)) => x1 *. x2 +. y1 *. y2;

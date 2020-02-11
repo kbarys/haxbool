@@ -54,3 +54,8 @@ let updatePosition = (physicalObject, time) => {
 };
 
 let setForce = (physicalObject, force) => {...physicalObject, force};
+
+let setVelocity = (physicalObject, velocity) => {
+  ...physicalObject,
+  velocity,
+};

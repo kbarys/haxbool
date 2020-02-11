@@ -4,11 +4,15 @@ module Performance = {
 
 let updatePlayerActions = (state: Game.state): Game.state => {
   ...state,
-  Game.players:
-    Belt.Map.String.update(
+  players:
+    Belt.List.map(
       state.players,
-      "1",
-      Belt.Option.map(_, player => {...player, actions: Input.actions^}),
+      fun
+      | {physicalObject: {id}} as player when id == "player_1" => {
+          ...player,
+          actions: Input.actions^,
+        }
+      | player => player,
     ),
 };
 
@@ -32,7 +36,7 @@ let logTo = (selector, value) => {
 };
 
 let logState = (state: Game.state) => {
-  let player = Belt.Map.String.getExn(state.players, "1");
+  let player = Belt.List.getExn(state.players, 0);
   logTo(
     ".force-value",
     player.physicalObject.force->Vector.toStringFixed(~digits=4),

@@ -22,32 +22,27 @@ type player = {
 type ball = {physicalObject: PhysicalObject.t};
 
 type state = {
-  players: Belt.Map.String.t(player),
+  players: Belt.List.t(player),
   ball,
-  collisionPoint: option(Vector.t),
 };
 
 let initState = {
-  players:
-    Belt.Map.String.fromArray([|
-      (
-        "1",
-        {
-          physicalObject: {
-            id: "player_1",
-            circle: {
-              position: (0.25, 0.5),
-              radius: Options.playerRadius,
-            },
-            mass: Options.playerMass,
-            force: Vector.zero,
-            acceleration: Vector.zero,
-            velocity: Vector.zero,
-          },
-          actions: noActions,
+  players: [
+    {
+      physicalObject: {
+        id: "player_1",
+        circle: {
+          position: (0.25, 0.5),
+          radius: Options.playerRadius,
         },
-      ),
-    |]),
+        mass: Options.playerMass,
+        force: Vector.zero,
+        acceleration: Vector.zero,
+        velocity: Vector.zero,
+      },
+      actions: noActions,
+    },
+  ],
   ball: {
     physicalObject: {
       id: "ball",
@@ -61,43 +56,70 @@ let initState = {
       velocity: Vector.zero,
     },
   },
-  collisionPoint: None,
+};
+
+let nextPlayerState = (previous: player, time) => {
+  let {actions} = previous;
+  let force =
+    (
+      (actions.moveLeft ? (-1.0) : 0.0) +. (actions.moveRight ? 1.0 : 0.0),
+      (actions.moveUp ? (-1.0) : 0.0) +. (actions.moveDown ? 1.0 : 0.0),
+    )
+    ->Vector.multiplyByScalar(Options.playerForce);
+  {
+    ...previous,
+    physicalObject:
+      previous.physicalObject
+      ->PhysicalObject.setForce(force)
+      ->PhysicalObject.updatePosition(time)
+      ->PhysicalObject.updateVelocity(time)
+      ->PhysicalObject.updateAcceleration,
+  };
+};
+
+let nextBallState = (previous: ball, time) => {
+  {
+    physicalObject:
+      previous.physicalObject
+      ->PhysicalObject.updatePosition(time)
+      ->PhysicalObject.updateVelocity(time)
+      ->PhysicalObject.updateAcceleration,
+  };
 };
 
 let nextState = (previousState: state, time: float) => {
-  let nextPlayerState = (previous: player) => {
-    let {actions} = previous;
-    let force =
-      (
-        (actions.moveLeft ? (-1.0) : 0.0) +. (actions.moveRight ? 1.0 : 0.0),
-        (actions.moveUp ? (-1.0) : 0.0) +. (actions.moveDown ? 1.0 : 0.0),
-      )
-      ->Vector.multiplyByScalar(Options.playerForce);
-    {
-      ...previous,
-      physicalObject:
-        previous.physicalObject
-        ->PhysicalObject.setForce(force)
-        ->PhysicalObject.updatePosition(time)
-        ->PhysicalObject.updateVelocity(time)
-        ->PhysicalObject.updateAcceleration,
-    };
+  let objects = [
+    previousState.ball.physicalObject,
+    ...previousState.players->Belt.List.map(player => player.physicalObject),
+  ];
+  let objectsAfterCollisionsById =
+    Collision.simulateElasticCollisions(objects)
+    ->Belt.List.map(object_ => (object_.id, object_))
+    ->Belt.List.toArray
+    ->Belt.Map.String.fromArray;
+  let players =
+    previousState.players
+    ->Belt.List.map(player =>
+        {
+          ...player,
+          physicalObject:
+            Belt.Map.String.getWithDefault(
+              objectsAfterCollisionsById,
+              player.physicalObject.id,
+              player.physicalObject,
+            ),
+        }
+      );
+  let ball = {
+    physicalObject:
+      Belt.Map.String.getWithDefault(
+        objectsAfterCollisionsById,
+        previousState.ball.physicalObject.id,
+        previousState.ball.physicalObject,
+      ),
   };
-  let collisions =
-    Collision.findCollisions([
-      previousState.ball.physicalObject,
-      ...Belt.Map.String.valuesToArray(previousState.players)
-         ->Belt.List.fromArray
-         ->Belt.List.map(x => x.physicalObject),
-    ]);
-  let collisionPoint =
-    switch (collisions) {
-    | [c] => Some(c.point)
-    | _ => None
-    };
   {
-    players: previousState.players->Belt.Map.String.map(nextPlayerState),
-    ball: previousState.ball,
-    collisionPoint,
+    players: Belt.List.map(players, nextPlayerState(_, time)),
+    ball: nextBallState(ball, time),
   };
 };

@@ -31,19 +31,18 @@ let contactPoint = (a, b) =>
       Some(takeCloser(c1, c2));
     } else {
       let (cx, cy) = a.position;
-      let quad = Js.Math.pow_float(~base=_, ~exp=2.0);
       let y = x => -. (sA *. x +. sC) /. sB;
       switch (
         Math.solveQuadraticEquation((
-          1.0 +. quad(sA /. sB),
+          1.0 +. Math.quad(sA /. sB),
           2.0 *. sA /. sB *. (cy +. sC /. sB) -. 2.0 *. cx,
-          quad(cx)
-          +. quad(cy)
+          Math.quad(cx)
+          +. Math.quad(cy)
           +. 2.0
           *. cy
           *. (sC /. sB)
-          +. quad(sC /. sB)
-          -. quad(a.radius),
+          +. Math.quad(sC /. sB)
+          -. Math.quad(a.radius),
         ))
       ) {
       | [x1, x2] =>
