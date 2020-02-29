@@ -14,15 +14,9 @@ let multiply = ((a, b), (c, d)) => (a *. c, b *. d);
 
 let divide = ((a, b), (c, d)) => (a /. c, b /. d);
 
-let min = ((a, b), (c, d)) => (
-  Js.Math.min_float(a, c),
-  Js.Math.min_float(b, d),
-);
+let min = ((a, b), (c, d)) => (Js.Math.min_float(a, c), Js.Math.min_float(b, d));
 
-let max = ((a, b), (c, d)) => (
-  Js.Math.max_float(a, c),
-  Js.Math.max_float(b, d),
-);
+let max = ((a, b), (c, d)) => (Js.Math.max_float(a, c), Js.Math.max_float(b, d));
 
 let zero = (0.0, 0.0);
 
@@ -35,8 +29,9 @@ let toStringFixed = ((x, y), ~digits) => {
 
 let lift = (x: float) => (x, x);
 
-let distance = ((x1, y1), (x2, y2)) =>
-  Js.Math.sqrt(Math.quad(x1 -. x2) +. Math.quad(y1 -. y2));
+let distance = ((x1, y1), (x2, y2)) => Js.Math.sqrt(Math.quad(x1 -. x2) +. Math.quad(y1 -. y2));
+
+let length = ((x, y)) => Js.Math.sqrt(Math.quad(x) +. Math.quad(y));
 
 let straightEquationCoefficients = ((x1, y1), (x2, y2)) =>
   if (x1 == x2) {

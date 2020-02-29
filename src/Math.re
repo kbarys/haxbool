@@ -11,3 +11,7 @@ let solveQuadraticEquation = ((a, b, c)) => {
     ->Belt.List.map(x => (x -. b) /. (2.0 *. a));
   };
 };
+
+let approxEqual = (a, b, ~precission) => {
+  a -. b <= precission;
+};

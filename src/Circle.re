@@ -13,6 +13,20 @@ let collide = (a, b) => {
   distanceBetweenCenters <= a.radius +. b.radius;
 };
 
+let strongCollide = (a, b) => {
+  let distanceBetweenCenters = Vector.distance(a.position, b.position);
+  distanceBetweenCenters < a.radius +. b.radius;
+};
+
+let contact = (a, b, ~precission) => {
+  let distanceBetweenCenters = Vector.distance(a.position, b.position);
+  Math.approxEqual(distanceBetweenCenters, a.radius +. b.radius, ~precission);
+};
+
+let move = (circle, ~by) => {
+  {...circle, position: Vector.add(circle.position, by)};
+};
+
 let contactPoint = (a, b) =>
   if (collide(a, b)) {
     let straightThroughCenters =
@@ -49,8 +63,7 @@ let contactPoint = (a, b) =>
         let c1 = (x1, y(x1));
         let c2 = (x2, y(x2));
         Some(takeCloser(c1, c2));
-      | _ =>
-        None;
+      | _ => None
       };
     };
   } else {
