@@ -1,7 +1,7 @@
 open Belt;
 
-let updateObjects = (objectById, time) => {
-  Map.String.map(objectById, PhysicalObject.update(_, time));
+let updateObjectPositionsAndVelocities = (objectById, time) => {
+  Map.String.map(objectById, PhysicalObject.updatePositionAndVelocity(_, time));
 };
 
 let findTimeWithCorrectCollision = (objectA, objectB, time) => {
@@ -29,14 +29,14 @@ let findTimeWithCorrectCollisions = (collisions: List.t(Collision.t), time) => {
 };
 
 let rec update = (objectById, time) => {
-  let updatedObjects = updateObjects(objectById, time);
+  let updatedObjects = updateObjectPositionsAndVelocities(objectById, time);
   let collisions = Collision.findCollisions(updatedObjects);
   if (collisions == []) {
     updatedObjects;
   } else {
     let decreasedTime = findTimeWithCorrectCollisions(collisions, time);
     update(
-      objectById->updateObjects(decreasedTime)->Collision.withVelocitiesAfterCollisions,
+      objectById->updateObjectPositionsAndVelocities(decreasedTime)->Collision.withVelocitiesAfterCollisions,
       time -. decreasedTime,
     );
   };

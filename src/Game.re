@@ -33,7 +33,6 @@ let initState = {
         },
         mass: Options.playerMass,
         force: Vector.zero,
-        acceleration: Vector.zero,
         velocity: Vector.zero,
         frictionCoefficient: 0.05,
       },
@@ -49,7 +48,6 @@ let initState = {
       },
       mass: Options.ballMass,
       force: Vector.zero,
-      acceleration: Vector.zero,
       velocity: Vector.zero,
       frictionCoefficient: 5.0,
     },
@@ -64,7 +62,13 @@ let updatePlayerForce = (previous: player) => {
       (actions.moveUp ? (-1.0) : 0.0) +. (actions.moveDown ? 1.0 : 0.0),
     )
     ->Vector.multiplyByScalar(Options.playerForce);
-  {...previous, physicalObject: previous.physicalObject->PhysicalObject.setForce(force)};
+  {
+    ...previous,
+    physicalObject: {
+      ...previous.physicalObject,
+      force,
+    },
+  };
 };
 
 let nextState = (previousState: state, time: float) => {
