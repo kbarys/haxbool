@@ -5,11 +5,12 @@ type t = {
   force: Vector.t,
   velocity: Vector.t,
   acceleration: Vector.t,
+  frictionCoefficient: float,
 };
 
 let friction = physicalObject => {
-  let frictionCoefficient = 0.05;
-  physicalObject.velocity->Vector.multiplyByScalar((-1.0) *. physicalObject.mass *. frictionCoefficient);
+  physicalObject.velocity
+  ->Vector.multiplyByScalar((-1.0) *. physicalObject.mass *. physicalObject.frictionCoefficient);
 };
 
 let keepPositionInBounds = position => {
@@ -38,3 +39,5 @@ let update = (physicalObject, time) => {
 let setForce = (physicalObject, force) => {...physicalObject, force};
 
 let setVelocity = (physicalObject, velocity) => {...physicalObject, velocity};
+
+let haveSameId = ({id: firstId}, {id: secondId}) => firstId == secondId;

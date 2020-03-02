@@ -31,8 +31,6 @@ let lift = (x: float) => (x, x);
 
 let distance = ((x1, y1), (x2, y2)) => Js.Math.sqrt(Math.quad(x1 -. x2) +. Math.quad(y1 -. y2));
 
-let length = ((x, y)) => Js.Math.sqrt(Math.quad(x) +. Math.quad(y));
-
 let straightEquationCoefficients = ((x1, y1), (x2, y2)) =>
   if (x1 == x2) {
     (1.0, 0.0, -. x1);
@@ -47,3 +45,5 @@ let straightEquationCoefficients = ((x1, y1), (x2, y2)) =>
 let length = ((x, y)) => Js.Math.sqrt(Math.quad(x) +. Math.quad(y));
 
 let dotProduct = ((x1, y1), (x2, y2)) => x1 *. x2 +. y1 *. y2;
+
+let adjustLength = (v, ~length as l) => multiplyByScalar(v, length(v) /. l);

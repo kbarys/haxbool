@@ -35,6 +35,7 @@ let initState = {
         force: Vector.zero,
         acceleration: Vector.zero,
         velocity: Vector.zero,
+        frictionCoefficient: 0.05,
       },
       actions: noActions,
     },
@@ -50,6 +51,7 @@ let initState = {
       force: Vector.zero,
       acceleration: Vector.zero,
       velocity: Vector.zero,
+      frictionCoefficient: 5.0,
     },
   },
 };
@@ -66,22 +68,18 @@ let updatePlayerForce = (previous: player) => {
 };
 
 let nextState = (previousState: state, time: float) => {
-  let objects = [
-    previousState.ball.physicalObject,
-    ...previousState.players->List.map(player => updatePlayerForce(player).physicalObject),
-  ];
-  let updatedObjects = Collision.update(objects, time);
+  let playersWithUpdatedForces = previousState.players->List.map(updatePlayerForce);
+  let objectById =
+    [previousState.ball.physicalObject, ...playersWithUpdatedForces->List.map(({physicalObject}) => physicalObject)]
+    ->List.map(object_ => (object_.id, object_))
+    ->List.toArray
+    ->Map.String.fromArray;
+  let updatedObjects = Physics.update(objectById, time);
   let players =
     previousState.players
     ->Belt.List.map(player =>
-        {
-          ...player,
-          physicalObject: List.getBy(updatedObjects, object_ => object_.id == player.physicalObject.id)->Option.getExn,
-        }
+        {...player, physicalObject: Map.String.getExn(updatedObjects, player.physicalObject.id)}
       );
-  let ball = {
-    physicalObject:
-      List.getBy(updatedObjects, object_ => object_.id == previousState.ball.physicalObject.id)->Option.getExn,
-  };
+  let ball = {physicalObject: Map.String.getExn(updatedObjects, previousState.ball.physicalObject.id)};
   {players, ball};
 };
