@@ -49,7 +49,7 @@ let initState = {
       mass: Options.ballMass,
       force: Vector.zero,
       velocity: Vector.zero,
-      frictionCoefficient: 5.0,
+      frictionCoefficient: 0.05,
     },
   },
 };

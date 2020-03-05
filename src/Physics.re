@@ -7,18 +7,13 @@ let updateObjectPositionsAndVelocities = (objectById, time) => {
 let findTimeWithCorrectCollision = (objectA, objectB, time) => {
   let {PhysicalObject.circle: circleA} = objectA;
   let {PhysicalObject.circle: circleB} = objectB;
-  let decreaseRatio =
-    circleA.radius
-    +. circleB.radius
-    /. Vector.length(
-         Vector.add(
-           Vector.multiplyByScalar(Vector.subtract(circleA.position, circleB.position), 2.0),
-           Vector.subtract(
-             Vector.multiplyByScalar(objectA.velocity, time),
-             Vector.multiplyByScalar(objectB.velocity, time),
-           ),
-         ),
-       );
+  let (t1, t2) =
+    Vector.(subtract(multiplyByScalar(objectA.velocity, time), multiplyByScalar(objectB.velocity, time)));
+  let (c1, c2) = Vector.subtract(circleA.position, circleB.position);
+  let j = Math.quad(t1) +. Math.quad(t2);
+  let i = 2.0 *. (t1 *. c1 +. t2 *. c2);
+  let z = Math.quad(c1) +. Math.quad(c2) -. Math.quad(circleA.radius +. circleB.radius);
+  let decreaseRatio = Math.solveQuadraticEquation((j, i, z))->List.toArray->Js.Math.minMany_float;
   time *. decreaseRatio;
 };
 
@@ -30,11 +25,15 @@ let findTimeWithCorrectCollisions = (collisions: List.t(Collision.t), time) => {
 
 let rec update = (objectById, time) => {
   let updatedObjects = updateObjectPositionsAndVelocities(objectById, time);
-  let collisions = Collision.findCollisions(updatedObjects);
+  let collisions = Collision.findCollisions(updatedObjects, ~collisionDetector=Circle.collide);
   if (collisions == []) {
     updatedObjects;
   } else {
-    let decreasedTime = findTimeWithCorrectCollisions(collisions, time);
+    let hypotheticalCollisions =
+      List.map(collisions, (({PhysicalObject.id: idA}, {id: idB})) =>
+        (Map.String.getExn(objectById, idA), Map.String.getExn(objectById, idB))
+      );
+    let decreasedTime = findTimeWithCorrectCollisions(hypotheticalCollisions, time);
     update(
       objectById->updateObjectPositionsAndVelocities(decreasedTime)->Collision.withVelocitiesAfterCollisions,
       time -. decreasedTime,
