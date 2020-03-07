@@ -39,7 +39,7 @@ let renderCircle = (canvasElement, circle: Circle.t, ~fillColor="#fff", ~strokeC
 let clearCircle = (circle: Circle.t, canvasElement) => {
   renderCircle(
     canvasElement,
-    {...circle, radius: circle.radius *. 1.5},
+    {...circle, radius: circle.radius *. 3.0},
     ~fillColor=Options.sceneColor,
     ~strokeColor=Options.sceneColor,
     ~strokeWidth=0.0,

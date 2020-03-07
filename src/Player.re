@@ -7,12 +7,14 @@ type playerActions = {
 };
 
 type t = {
+  id: string,
   physicalObject: PhysicalObject.t,
   actions: playerActions,
 };
 
 let create = (~id, ~position) => {
   {
+    id,
     physicalObject: {
       id,
       circle: {

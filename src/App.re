@@ -20,18 +20,10 @@ let make = () => {
     />
     <div className="debug">
       <div> {React.string("Force: ")} <span className="force-value" /> </div>
-      <div>
-        {React.string("Acceleration: ")}
-        <span className="acceleration-value" />
-      </div>
-      <div>
-        {React.string("Friction: ")}
-        <span className="friction-value" />
-      </div>
-      <div>
-        {React.string("Velocity: ")}
-        <span className="velocity-value" />
-      </div>
+      <div> {React.string("Acceleration: ")} <span className="acceleration-value" /> </div>
+      <div> {React.string("Friction: ")} <span className="friction-value" /> </div>
+      <div> {React.string("Velocity: ")} <span className="velocity-value" /> </div>
+      <div> {React.string("Hit: ")} <span className="hit" /> </div>
     </div>
   </>;
 };

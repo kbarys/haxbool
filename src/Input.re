@@ -1,13 +1,4 @@
-let actions =
-  ref(
-    Player.{
-      moveUp: false,
-      moveDown: false,
-      moveLeft: false,
-      moveRight: false,
-      hit: false,
-    },
-  );
+let actions = ref(Player.{moveUp: false, moveDown: false, moveLeft: false, moveRight: false, hit: false});
 
 let onChange = (key, pressed) => {
   switch (key) {
@@ -20,11 +11,9 @@ let onChange = (key, pressed) => {
   };
 };
 
-let onKeyDown = event =>
-  event->Webapi.Dom.KeyboardEvent.key->onChange(_, true);
+let onKeyDown = event => event->Webapi.Dom.KeyboardEvent.key->onChange(_, true);
 
-let onKeyUp = event =>
-  event->Webapi.Dom.KeyboardEvent.key->onChange(_, false);
+let onKeyUp = event => event->Webapi.Dom.KeyboardEvent.key->onChange(_, false);
 
 let track = () => {
   Webapi.Dom.Document.addKeyDownEventListener(onKeyDown, Webapi.Dom.document);

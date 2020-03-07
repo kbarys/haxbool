@@ -8,7 +8,10 @@ type state = {
 
 let initState = {
   idOfControlledPlayer: "player_1",
-  players: [Player.create(~id="player_1", ~position=(0.25, 0.5))],
+  players: [
+    Player.create(~id="player_1", ~position=(0.25, 0.5)),
+    Player.create(~id="player_2", ~position=(1.0, 0.25)),
+  ],
   ball: {
     id: "ball",
     circle: {
@@ -22,20 +25,9 @@ let initState = {
   },
 };
 
-let updateControlledPlayerActions = (players: List.t(Player.t), idOfControlledPlayer) => {
-  Belt.List.map(
-    players,
-    fun
-    | {physicalObject: {id}} as player when id == idOfControlledPlayer => {...player, actions: Input.actions^}
-    | player => player,
-  );
-};
-
 let nextState = (state, time) => {
-  let playersWithUpdatedForces =
-    state.players->updateControlledPlayerActions(state.idOfControlledPlayer)->List.map(Player.updateForce);
   let objectById =
-    [state.ball, ...playersWithUpdatedForces->List.map(({physicalObject}) => physicalObject)]
+    [state.ball, ...state.players->List.map(({physicalObject}) => physicalObject)]
     ->List.map(object_ => (object_.id, object_))
     ->List.toArray
     ->Map.String.fromArray;
@@ -43,8 +35,13 @@ let nextState = (state, time) => {
   let players =
     state.players
     ->Belt.List.map(player =>
-        {...player, physicalObject: Map.String.getExn(updatedObjects, player.physicalObject.id)}
+        {
+          ...player,
+          physicalObject: Map.String.getExn(updatedObjects, player.id),
+          actions: player.id == state.idOfControlledPlayer ? Input.actions^ : player.actions,
+        }
+        ->Player.updateForce
       );
   let ball = Map.String.getExn(updatedObjects, state.ball.id);
-  {...state, players, ball};
+  {...state, players, ball: Hitting.updateBallVelocity(players, ball)};
 };
