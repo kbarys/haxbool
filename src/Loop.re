@@ -2,17 +2,6 @@ module Performance = {
   [@bs.scope "performance"] [@bs.val] external now: unit => float = "now";
 };
 
-let updatePlayerActions = (state: Game.state): Game.state => {
-  ...state,
-  players:
-    Belt.List.map(
-      state.players,
-      fun
-      | {physicalObject: {id}} as player when id == "player_1" => {...player, actions: Input.actions^}
-      | player => player,
-    ),
-};
-
 [@bs.scope "window"] [@bs.val] external requestAnimationFrame: (float => unit) => int = "requestAnimationFrame";
 
 let rec loopWithTime = (f, previousResult, previousTimestamp, currentTimestamp) => {
@@ -36,11 +25,11 @@ let logState = (state: Game.state) => {
 };
 
 let start = canvas => {
-  let gameLoop = (previousState, ~time) => {
-    let state = Game.nextState(previousState, time)->updatePlayerActions;
+  let gameLoop = (state, ~time) => {
     logState(state);
-    Scene.render(canvas, previousState, state);
-    state;
+    let nextState = Game.nextState(state, time);
+    Scene.render(canvas, nextState, state);
+    nextState;
   };
   Scene.init(canvas);
   loopWithTime(gameLoop, Game.initState, 0.0, 0.0);

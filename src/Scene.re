@@ -1,5 +1,4 @@
-let runInContext = (context, statements) =>
-  Belt.List.forEach(statements, statement => statement(context));
+let runInContext = (context, statements) => Belt.List.forEach(statements, statement => statement(context));
 
 let init = canvasElement => {
   Webapi.Canvas.Canvas2d.(
@@ -13,15 +12,7 @@ let init = canvasElement => {
   );
 };
 
-let renderCircle =
-    (
-      canvasElement,
-      circle: Circle.t,
-      ~fillColor="#fff",
-      ~strokeColor="#000",
-      ~strokeWidth=0.01,
-      (),
-    ) => {
+let renderCircle = (canvasElement, circle: Circle.t, ~fillColor="#fff", ~strokeColor="#000", ~strokeWidth=0.01, ()) => {
   Webapi.Canvas.Canvas2d.(
     runInContext(
       Webapi.Canvas.CanvasElement.getContext2d(canvasElement),
@@ -30,10 +21,7 @@ let renderCircle =
         arc(
           ~x=circle.position->fst /. Options.virtualWidth *. Options.width,
           ~y=circle.position->snd /. Options.virtualHeight *. Options.height,
-          ~r=
-            (circle.radius -. strokeWidth /. 2.0)
-            /. Options.virtualWidth
-            *. Options.width, // TODO: it should be rendered as an elipsis
+          ~r=(circle.radius -. strokeWidth /. 2.0) /. Options.virtualWidth *. Options.width, // TODO: it should be rendered as an elipsis
           ~startAngle=0.0,
           ~endAngle=Js.Math._PI *. 2.0,
           ~anticw=false,
@@ -59,10 +47,9 @@ let clearCircle = (canvasElement, circle: Circle.t) => {
   );
 };
 
-let clearScene = (canvasElement, circles) =>
-  circles->Belt.List.forEach(clearCircle(canvasElement));
+let clearScene = (canvasElement, circles) => circles->Belt.List.forEach(clearCircle(canvasElement));
 
-let renderPlayer = (canvasElement, player: Game.player) => {
+let renderPlayer = (canvasElement, player: Player.t) => {
   renderCircle(
     canvasElement,
     player.physicalObject.circle,
@@ -73,20 +60,11 @@ let renderPlayer = (canvasElement, player: Game.player) => {
   );
 };
 
-let renderBall = (canvasElement, ball: Game.ball) =>
-  renderCircle(
-    canvasElement,
-    ball.physicalObject.circle,
-    ~strokeWidth=Options.ballStrokeSize,
-    (),
-  );
+let renderBall = (canvasElement, ball: PhysicalObject.t) =>
+  renderCircle(canvasElement, ball.circle, ~strokeWidth=Options.ballStrokeSize, ());
 
 let render = (canvasElement, previousState: Game.state, state: Game.state) => {
-  [
-    previousState.ball.physicalObject.circle,
-    ...previousState.players
-       ->Belt.List.map(player => player.physicalObject.circle),
-  ]
+  [previousState.ball.circle, ...previousState.players->Belt.List.map(player => player.physicalObject.circle)]
   |> clearScene(canvasElement);
   state.players->Belt.List.forEach(renderPlayer(canvasElement));
   state.ball |> renderBall(canvasElement);
