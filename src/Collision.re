@@ -44,7 +44,7 @@ let velocitiesAfterElasticCollision = ((objectA, objectB)) => {
   let {velocity: v2, mass: m2, circle: {position: c2}} = objectB;
   let u1 = velocityAfterCollision((v1, m1, c1), (v2, m2, c2));
   let u2 = velocityAfterCollision((v2, m2, c2), (v1, m1, c1));
-  (u1, u2);
+  (Vector.multiplyByScalar(u1, 0.9), Vector.multiplyByScalar(u2, 0.9));
 };
 
 let zeroVelocityOfCollidingObjects = (objectById, collisions) => {
