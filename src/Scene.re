@@ -36,7 +36,7 @@ let renderCircle = (canvasElement, circle: Circle.t, ~fillColor="#fff", ~strokeC
   );
 };
 
-let clearCircle = (canvasElement, circle: Circle.t) => {
+let clearCircle = (circle: Circle.t, canvasElement) => {
   renderCircle(
     canvasElement,
     {...circle, radius: circle.radius *. 1.5},
@@ -47,9 +47,12 @@ let clearCircle = (canvasElement, circle: Circle.t) => {
   );
 };
 
-let clearScene = (canvasElement, circles) => circles->Belt.List.forEach(clearCircle(canvasElement));
+let clearScene = (state: Game.state, canvasElement) => {
+  let circles = [state.ball.circle, ...state.players->Belt.List.map(player => player.physicalObject.circle)];
+  circles->Belt.List.forEach(__x => clearCircle(__x, canvasElement));
+};
 
-let renderPlayer = (canvasElement, player: Player.t) => {
+let renderPlayer = (player: Player.t, canvasElement) => {
   renderCircle(
     canvasElement,
     player.physicalObject.circle,
@@ -60,12 +63,12 @@ let renderPlayer = (canvasElement, player: Player.t) => {
   );
 };
 
-let renderBall = (canvasElement, ball: PhysicalObject.t) =>
+let renderBall = (ball: PhysicalObject.t, canvasElement) =>
   renderCircle(canvasElement, ball.circle, ~strokeWidth=Options.ballStrokeSize, ());
 
 let render = (canvasElement, previousState: Game.state, state: Game.state) => {
-  [previousState.ball.circle, ...previousState.players->Belt.List.map(player => player.physicalObject.circle)]
-  |> clearScene(canvasElement);
-  state.players->Belt.List.forEach(renderPlayer(canvasElement));
-  state.ball |> renderBall(canvasElement);
+  runInContext(
+    canvasElement,
+    [clearScene(previousState), renderBall(state.ball), ...state.players->Belt.List.map(renderPlayer)],
+  );
 };
