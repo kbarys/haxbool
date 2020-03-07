@@ -22,44 +22,29 @@ let findCollisions =
   ->List.keep(((a, b)) => collisionDetector(a.circle, b.circle, ~precission=0.000000001));
 };
 
+let velocityAfterCollision = ((v1, m1, c1), (v2, m2, c2)) => {
+  Vector.(
+    subtract(
+      v1,
+      multiplyByScalar(
+        subtract(c1, c2),
+        2.0
+        *. m2
+        /. (m1 +. m2)
+        *. dotProduct(subtract(v1, v2), subtract(c1, c2))
+        /. Math.quad(length(subtract(c1, c2))),
+      ),
+    )
+  );
+};
+
 let velocitiesAfterElasticCollision = ((objectA, objectB)) => {
   open PhysicalObject;
   let {velocity: v1, mass: m1, circle: {position: c1}} = objectA;
   let {velocity: v2, mass: m2, circle: {position: c2}} = objectB;
-  let u1 =
-    Vector.(
-      subtract(
-        v1,
-        multiplyByScalar(
-          subtract(c1, c2),
-          2.0
-          *. m2
-          /. (m1 +. m2)
-          *. dotProduct(subtract(v1, v2), subtract(c1, c2))
-          /. Math.quad(length(subtract(c1, c2))),
-        ),
-      )
-    );
-  let u2 =
-    Vector.(
-      subtract(
-        v2,
-        multiplyByScalar(
-          subtract(c2, c1),
-          2.0
-          *. m1
-          /. (m1 +. m2)
-          *. dotProduct(subtract(v2, v1), subtract(c2, c1))
-          /. Math.quad(length(subtract(c2, c1))),
-        ),
-      )
-    );
-  if (Vector.(Js.Math.abs_float(length(v1) -. length(v2)) < 0.1) && false) {
-    let averageLength = Vector.((length(v1) +. length(v2)) /. 2.0);
-    Vector.(adjustLength(u1, ~length=averageLength *. 0.5), adjustLength(u2, ~length=averageLength));
-  } else {
-    (u1, u2);
-  };
+  let u1 = velocityAfterCollision((v1, m1, c1), (v2, m2, c2));
+  let u2 = velocityAfterCollision((v2, m2, c2), (v1, m1, c1));
+  (u1, u2);
 };
 
 let zeroVelocityOfCollidingObjects = (objectById, collisions) => {
