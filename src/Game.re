@@ -10,7 +10,7 @@ let initState = {
   idOfControlledPlayer: "player_1",
   players: [
     Player.create(~id="player_1", ~position=(0.25, 0.5)),
-    Player.create(~id="player_2", ~position=(1.0, 0.25)),
+    Player.create(~id="player_2", ~position=(1.0, 0.5)),
   ],
   ball: {
     id: "ball",

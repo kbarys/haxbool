@@ -1,7 +1,5 @@
 open Belt;
 
-type t = (PhysicalObject.t, PhysicalObject.t);
-
 let makePairs = objects => {
   let rec makePairs_ = (pairs, remaining) => {
     switch (remaining) {
@@ -13,13 +11,20 @@ let makePairs = objects => {
   makePairs_([], objects);
 };
 
-let findCollisions =
-    (objects: Map.String.t(PhysicalObject.t), ~collisionDetector: (Circle.t, Circle.t, ~precission: float) => bool) => {
+let objectsCollide = (a: PhysicalObject.t, b: PhysicalObject.t) => {
+  let distanceBetweenCenters = Vector.distance(a.circle.position, b.circle.position);
+  let sumOfRadiuses = a.circle.radius +. b.circle.radius;
+  let collisionTreshold = Js.Math.pow_float(~base=10.0, ~exp=-5.0);
+  sumOfRadiuses -. distanceBetweenCenters > collisionTreshold;
+};
+
+let findCollisions = (objects: Map.String.t(PhysicalObject.t)) => {
   objects
   ->Map.String.valuesToArray
   ->List.fromArray
   ->makePairs
-  ->List.keep(((a, b)) => collisionDetector(a.circle, b.circle, ~precission=0.000000001));
+  ->List.keep(((a, b)) => objectsCollide(a, b))
+  ->List.map(((a, b)) => (a.id, b.id));
 };
 
 let velocityAfterCollision = ((v1, m1, c1), (v2, m2, c2)) => {
@@ -44,7 +49,7 @@ let velocitiesAfterElasticCollision = ((objectA, objectB)) => {
   let {velocity: v2, mass: m2, circle: {position: c2}} = objectB;
   let u1 = velocityAfterCollision((v1, m1, c1), (v2, m2, c2));
   let u2 = velocityAfterCollision((v2, m2, c2), (v1, m1, c1));
-  (Vector.multiplyByScalar(u1, 0.9), Vector.multiplyByScalar(u2, 0.9));
+  (u1, u2);
 };
 
 let zeroVelocityOfCollidingObjects = (objectById, collisions) => {
@@ -56,11 +61,26 @@ let zeroVelocityOfCollidingObjects = (objectById, collisions) => {
   );
 };
 
-let withVelocitiesAfterCollisions = (initialObjectById: Map.String.t(PhysicalObject.t)) => {
-  let collisions = findCollisions(initialObjectById, ~collisionDetector=Circle.contact);
+let objectsContact = ((a: PhysicalObject.t, b: PhysicalObject.t)) => {
+  let contactPrecission = Js.Math.pow_float(~base=10.0, ~exp=-15.0);
+  Math.approxEqual(
+    a.circle.radius +. b.circle.radius,
+    Vector.distance(a.circle.position, b.circle.position),
+    ~precission=contactPrecission,
+  );
+};
+
+let collidingObjectsFromCollision = (objectById, collision) => {
+  let (idA, idB) = collision;
+  (Map.String.getExn(objectById, idA), Map.String.getExn(objectById, idB));
+};
+
+let withVelocitiesAfterCollisions = (initialObjectById, hypotheticalCollisions) => {
+  let collidingObjects =
+    hypotheticalCollisions->List.map(collidingObjectsFromCollision(initialObjectById))->List.keep(objectsContact);
   List.reduce(
-    collisions,
-    zeroVelocityOfCollidingObjects(initialObjectById, collisions),
+    collidingObjects,
+    zeroVelocityOfCollidingObjects(initialObjectById, collidingObjects),
     (objectById, collision) => {
       let updateObjectVelocity = (objects, {id}: PhysicalObject.t, velocity) =>
         Map.String.update(
