@@ -24,6 +24,7 @@ let make = () => {
       <div> {React.string("Friction: ")} <span className="friction-value" /> </div>
       <div> {React.string("Velocity: ")} <span className="velocity-value" /> </div>
       <div> {React.string("Hit: ")} <span className="hit" /> </div>
+      <div> {React.string("Hit power: ")} <span className="hit-power" /> </div>
     </div>
   </>;
 };

@@ -14,5 +14,4 @@ let ballRadius = 0.02;
 let ballStrokeSize = 0.004;
 let ballFrictionCoefficient = 0.2;
 let sceneColor = "#6F965E";
-let collisionPrecission = 0.5;
-let ballVelocityAfterHit = 0.8;
+let hitCoefficient = 0.3;

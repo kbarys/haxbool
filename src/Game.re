@@ -41,6 +41,7 @@ let nextState = (state, time) => {
           actions: player.id == state.idOfControlledPlayer ? Input.actions^ : player.actions,
         }
         ->Player.updateForce
+        ->Hitting.updatePlayerHit(_, time)
       );
   let ball = Map.String.getExn(updatedObjects, state.ball.id);
   {...state, players, ball: Hitting.updateBallVelocity(players, ball)};

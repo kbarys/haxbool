@@ -23,6 +23,7 @@ let logState = (state: Game.state) => {
   logTo(".friction-value", PhysicalObject.friction(player.physicalObject)->Vector.toStringFixed(~digits=4));
   logTo(".velocity-value", player.physicalObject.velocity->Vector.toStringFixed(~digits=4));
   logTo(".hit", player.actions.hit ? "True" : "False");
+  logTo(".hit-power", player.hitPower->Js.Float.toString);
 };
 
 let start = canvas => {

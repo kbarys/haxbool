@@ -21,15 +21,31 @@ let nearestToBall = (players: List.t(Player.t), ball: PhysicalObject.t) => {
 
 let updateBallVelocity = (players: List.t(Player.t), ball: PhysicalObject.t) => {
   switch (
-    players->List.keep(player => player.actions.hit && distanceToBall(player, ball) < 0.07)->nearestToBall(ball)
+    players->List.keep(player => player.hitActivated && distanceToBall(player, ball) < 0.07)->nearestToBall(ball)
   ) {
   | Some(hittingPlayer) =>
     let ballVelocityAfterHit =
       Vector.adjustLength(
         Vector.subtract(ball.circle.position, hittingPlayer.physicalObject.circle.position),
-        ~length=Options.ballVelocityAfterHit,
+        ~length=Options.hitCoefficient *. hittingPlayer.hitPower,
       );
     {...ball, velocity: ballVelocityAfterHit};
   | None => ball
+  };
+};
+
+let updatePlayerHit = (player: Player.t, time) => {
+  let hitActivated = player.hitPower > 0.0 && !player.actions.hit && !player.hitActivated;
+  {
+    ...player,
+    hitActivated,
+    hitPower:
+      if (player.actions.hit) {
+        player.hitPower == 0.0 ? 1.0 : Js.Math.min_float(player.hitPower +. time *. 5.0, 3.0);
+      } else if (hitActivated) {
+        player.hitPower;
+      } else {
+        0.0;
+      },
   };
 };

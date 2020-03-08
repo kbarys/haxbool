@@ -10,6 +10,8 @@ type t = {
   id: string,
   physicalObject: PhysicalObject.t,
   actions: playerActions,
+  hitActivated: bool,
+  hitPower: float,
 };
 
 let create = (~id, ~position) => {
@@ -33,6 +35,8 @@ let create = (~id, ~position) => {
       moveRight: false,
       hit: false,
     },
+    hitActivated: false,
+    hitPower: 0.0,
   };
 };
 
