@@ -37,11 +37,11 @@ let zeroVelocityOfCollidingObjects = (objectById, collisions) => {
 };
 
 let objectsContact = ((a: PhysicalObject.t, b: PhysicalObject.t)) => {
-  let contactPrecission = Js.Math.pow_float(~base=10.0, ~exp=-15.0);
+  let contactprecision = Js.Math.pow_float(~base=10.0, ~exp=-15.0);
   Math.approxEqual(
     a.circle.radius +. b.circle.radius,
     Vector.distance(a.circle.position, b.circle.position),
-    ~precission=contactPrecission,
+    ~precision=contactprecision,
   );
 };
 

@@ -20,8 +20,18 @@ let nearestToBall = (players: List.t(Player.t), ball: PhysicalObject.t) => {
 };
 
 let updateBallVelocity = (players: List.t(Player.t), ball: PhysicalObject.t) => {
+  let hitprecision = Js.Math.pow_float(~base=10.0, ~exp=-2.0);
   switch (
-    players->List.keep(player => player.hitActivated && distanceToBall(player, ball) < 0.07)->nearestToBall(ball)
+    players
+    ->List.keep(player =>
+        player.hitActivated
+        && Math.approxEqual(
+             player.physicalObject.circle.radius +. ball.circle.radius,
+             distanceToBall(player, ball),
+             ~precision=hitprecision,
+           )
+      )
+    ->nearestToBall(ball)
   ) {
   | Some(hittingPlayer) =>
     let ballVelocityAfterHit =
@@ -41,7 +51,7 @@ let updatePlayerHit = (player: Player.t, time) => {
     hitActivated,
     hitPower:
       if (player.actions.hit) {
-        player.hitPower == 0.0 ? 1.0 : Js.Math.min_float(player.hitPower +. time *. 5.0, 3.0);
+        Js.Math.min_float(player.hitPower +. time *. 2.0, 1.0);
       } else if (hitActivated) {
         player.hitPower;
       } else {

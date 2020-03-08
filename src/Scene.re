@@ -12,18 +12,29 @@ let init = canvasElement => {
   );
 };
 
-let renderCircle = (canvasElement, circle: Circle.t, ~fillColor="#fff", ~strokeColor="#000", ~strokeWidth=0.01, ()) => {
+let renderArc =
+    (
+      canvasElement,
+      ~center: Vector.t,
+      ~radius,
+      ~startAngle=0.0,
+      ~endAngle=Js.Math._PI *. 2.0,
+      ~fillColor="none",
+      ~strokeColor="#000",
+      ~strokeWidth=0.01,
+      (),
+    ) => {
   Webapi.Canvas.Canvas2d.(
     runInContext(
       Webapi.Canvas.CanvasElement.getContext2d(canvasElement),
       [
         beginPath,
         arc(
-          ~x=circle.position->fst /. Options.virtualWidth *. Options.width,
-          ~y=circle.position->snd /. Options.virtualHeight *. Options.height,
-          ~r=(circle.radius -. strokeWidth /. 2.0) /. Options.virtualWidth *. Options.width, // TODO: it should be rendered as an elipsis
-          ~startAngle=0.0,
-          ~endAngle=Js.Math._PI *. 2.0,
+          ~x=center->fst /. Options.virtualWidth *. Options.width,
+          ~y=center->snd /. Options.virtualHeight *. Options.height,
+          ~r=(radius -. strokeWidth /. 2.0) /. Options.virtualWidth *. Options.width, // TODO: it should be rendered as an elipsis
+          ~startAngle,
+          ~endAngle,
           ~anticw=false,
         ),
         setFillStyle(_, String, fillColor),
@@ -33,6 +44,18 @@ let renderCircle = (canvasElement, circle: Circle.t, ~fillColor="#fff", ~strokeC
         fill,
       ],
     )
+  );
+};
+
+let renderCircle = (canvasElement, circle: Circle.t, ~fillColor="#fff", ~strokeColor="#000", ~strokeWidth=0.01, ()) => {
+  renderArc(
+    canvasElement,
+    ~center=circle.position,
+    ~radius=circle.radius,
+    ~fillColor,
+    ~strokeColor,
+    ~strokeWidth,
+    (),
   );
 };
 
@@ -56,11 +79,24 @@ let renderPlayer = (player: Player.t, canvasElement) => {
   renderCircle(
     canvasElement,
     player.physicalObject.circle,
-    ~strokeColor=player.actions.hit ? "#fff" : "#000",
+    ~strokeColor="#000",
     ~fillColor="#E56E56",
     ~strokeWidth=Options.playerStrokeSize,
     (),
   );
+  if (player.hitPower > 0.0) {
+    renderArc(
+      canvasElement,
+      ~center=player.physicalObject.circle.position,
+      ~radius=player.physicalObject.circle.radius -. 0.003,
+      ~startAngle=(-0.5) *. Js.Math._PI,
+      ~endAngle=2.0 *. Js.Math._PI *. player.hitPower -. 0.5 *. Js.Math._PI,
+      ~strokeColor="#fff",
+      ~fillColor="transparent",
+      ~strokeWidth=0.005,
+      (),
+    );
+  };
 };
 
 let renderBall = (ball: PhysicalObject.t, canvasElement) =>
