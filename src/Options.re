@@ -1,6 +1,6 @@
 let virtualWidth = 2.0;
 let virtualHeight = 1.0;
-let scale = 400.0;
+let scale = 500.0;
 let width = scale *. virtualWidth;
 let height = scale *. virtualHeight;
 let virutalSize = (virtualWidth, virtualHeight);

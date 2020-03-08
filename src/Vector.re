@@ -8,14 +8,6 @@ let multiplyByScalar = ((x, y), by) => (x *. by, y *. by);
 
 let divideByScalar = ((x, y), by) => (x /. by, y /. by);
 
-let multiply = ((a, b), (c, d)) => (a *. c, b *. d);
-
-let divide = ((a, b), (c, d)) => (a /. c, b /. d);
-
-let min = ((a, b), (c, d)) => (Js.Math.min_float(a, c), Js.Math.min_float(b, d));
-
-let max = ((a, b), (c, d)) => (Js.Math.max_float(a, c), Js.Math.max_float(b, d));
-
 let zero = (0.0, 0.0);
 
 let toString = ((x, y)) => {j|($x, $y)|j};
@@ -33,3 +25,5 @@ let length = ((x, y)) => Js.Math.sqrt(Math.quad(x) +. Math.quad(y));
 let dotProduct = ((x1, y1), (x2, y2)) => x1 *. x2 +. y1 *. y2;
 
 let adjustLength = (v, ~length as l) => multiplyByScalar(v, l /. length(v));
+
+let normalize = v => divideByScalar(v, length(v));
